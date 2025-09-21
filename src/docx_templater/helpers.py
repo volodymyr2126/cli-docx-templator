@@ -11,6 +11,11 @@ from practice2.src.docx_templater.settings import UNZIP_OUTPUT, OUTPUT_DIR, NS
 
 
 def get_xml_from_docx(docx_path: str) -> etree.ElementTree:
+    """
+    Retrieves xml tree and path to the xml from unpacked .docx file.
+    :param docx_path: path to .docx file
+    :return: etree.ElementTree of .docx and path to xml file.
+    """
     with zipfile.ZipFile(docx_path, "r") as zin:
         zin.extractall(UNZIP_OUTPUT)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -20,6 +25,11 @@ def get_xml_from_docx(docx_path: str) -> etree.ElementTree:
 
 
 def extract_csv_data(path_to_csv: str = "./samples/test.csv") -> List[dict]:
+    """
+    Extracts data from csv using dict reader.
+    :param path_to_csv: path to csv with data
+    :return: list of dicts created from .csv data
+    """
     with open(path_to_csv, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         data = list(reader)
@@ -27,14 +37,30 @@ def extract_csv_data(path_to_csv: str = "./samples/test.csv") -> List[dict]:
 
 
 def get_all_text(tree: etree.Element) -> str:
+    """
+    Gets all text from some xml tree
+    :param tree: target xml tree
+    :return: full text inside xml tree.
+    """
     return "".join([node.text for node in tree.getroot().findall(".//w:t", NS)])
 
 
 def get_all_variables(text: str) -> set:
+    """
+    Retrieves all templated variables from text
+    :param text: target text
+    :return: unique variable names
+    """
     return set(re.findall(r"\{([^}]+)\}", text))
 
 
 def process_paragraph(p: etree.Element, variables: dict) -> None:
+    """
+    Processes .docx paragraphs substituting variables inside of it for actual values.
+    :param p: paragraph to change - xml representation
+    :param variables: mappings to replace
+    :return: nothing
+    """
     new_runs = []
     inside = False
     placeholder = ""
@@ -72,6 +98,14 @@ def process_paragraph(p: etree.Element, variables: dict) -> None:
 
 
 def replace_placeholders(tree: etree.ElementTree, xml_path: str, out_path: str, variables: dict) -> None:
+    """
+    Replaces placeholders in .docx file
+    :param tree: .docx xml tree representation
+    :param xml_path: path to xml tree representation in filesystem
+    :param out_path: output path
+    :param variables: mappings
+    :return: nothing
+    """
     root = tree.getroot()
     for p in root.findall(".//w:p", NS):
         process_paragraph(p, variables)
@@ -88,6 +122,12 @@ def replace_placeholders(tree: etree.ElementTree, xml_path: str, out_path: str, 
 
 
 def get_missing_positions(old_csv_vars: list, new_csv_vars: list) -> list:
+    """
+    Retrieves positions of missing column names from list of columns
+    :param old_csv_vars: old variant of csv column names
+    :param new_csv_vars: new variant of csv column names
+    :return: missing positions
+    """
     missing_positions = []
     for n, var in enumerate(old_csv_vars):
         if var not in new_csv_vars:
@@ -96,10 +136,17 @@ def get_missing_positions(old_csv_vars: list, new_csv_vars: list) -> list:
 
 
 def compare_vars(csv_vars: list, docx_vars: set, data: list) -> list:
+    """
+    Compares variables from .docx placeholders and .csv column names
+    :param csv_vars: .csv column names
+    :param docx_vars: .docx placeholders
+    :param data: sample data for .csv new columns mapping
+    :return: Nothing if number of placeholders is less than columns. New column names for csv if number is greater or equal.
+    """
     missing_vars = []
     new_csv_vars = []
-    if len(csv_vars) != len(docx_vars):
-        print(f"Number of csv columns doesn't match number of columns in docx file. Please edit your csv file.")
+    if len(csv_vars) < len(docx_vars):
+        print(f"Number of csv columns is less than placeholders in docx file. Please edit your csv file.")
         return []
     for n, var in enumerate(docx_vars):
         if var not in csv_vars:
@@ -140,6 +187,14 @@ def compare_vars(csv_vars: list, docx_vars: set, data: list) -> list:
 
 
 def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: str) -> None:
+    """
+    Dialogue for .docx placeholders substitutions
+    :param docx_path: path to .docx file
+    :param out_path: output directory
+    :param data_path: path to .csv with data
+    :param file_name_pattern: pattern for file naming
+    :return: nothing
+    """
     tree, xml_path = get_xml_from_docx(docx_path=docx_path)
     items = extract_csv_data(path_to_csv=data_path)
 
