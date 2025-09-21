@@ -1,8 +1,7 @@
 import argparse
 
-
-from practice2.src.docx_templater.helpers import dialogue
-from practice2.src.docx_templater.settings import DEFAULT_DATA_PATH, DEFAULT_DOC_PATH, OUTPUT_DIR, DEFAULT_PATTERN
+from helpers import dialogue
+from settings import DEFAULT_DATA_PATH, DEFAULT_DOC_PATH, OUTPUT_DIR, DEFAULT_PATTERN
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate DOCX from template and CSV data")

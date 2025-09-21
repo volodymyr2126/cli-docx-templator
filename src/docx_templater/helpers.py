@@ -7,7 +7,7 @@ import csv
 from typing import List
 import re
 
-from practice2.src.docx_templater.settings import UNZIP_OUTPUT, OUTPUT_DIR, NS
+from settings import UNZIP_OUTPUT, OUTPUT_DIR, NS
 
 
 def get_xml_from_docx(docx_path: str) -> etree.ElementTree:
@@ -118,7 +118,6 @@ def replace_placeholders(tree: etree.ElementTree, xml_path: str, out_path: str, 
                 arcname = os.path.relpath(file_path, UNZIP_OUTPUT)
                 zout.write(file_path, arcname)
     shutil.rmtree(UNZIP_OUTPUT)
-    print(get_all_text(tree))
 
 
 def get_missing_positions(old_csv_vars: list, new_csv_vars: list) -> list:
@@ -216,7 +215,7 @@ def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: s
         new_item = {new_csv_var_names[i]: item[old_names[i]] for i in range(len(old_names))}
         renamed_items.append(new_item)
     items = renamed_items
-    print(items)
+
     for n, item in enumerate(items):
         replace_placeholders(tree=tree,
                              xml_path=xml_path,
