@@ -77,7 +77,7 @@ def process_paragraph(p: etree.Element, variables: dict) -> None:
                 first_run = run
             elif ch == "}":
                 inside = False
-                value = variables.get(placeholder, f"{{{placeholder}}}")
+                value = variables.get(placeholder, f" ")
                 new_run = deepcopy(first_run)
                 for t in new_run.findall("w:t", NS):
                     t.text = value
@@ -97,7 +97,7 @@ def process_paragraph(p: etree.Element, variables: dict) -> None:
         p.append(run)
 
 
-def replace_placeholders(tree: etree.ElementTree, xml_path: str, out_path: str, variables: dict) -> None:
+def replace_placeholders(docx_path: str, out_path: str, variables: dict, dry_run: bool) -> None:
     """
     Replaces placeholders in .docx file
     :param tree: .docx xml tree representation
@@ -106,9 +106,12 @@ def replace_placeholders(tree: etree.ElementTree, xml_path: str, out_path: str, 
     :param variables: mappings
     :return: nothing
     """
+    tree, xml_path = get_xml_from_docx(docx_path=docx_path)
     root = tree.getroot()
     for p in root.findall(".//w:p", NS):
         process_paragraph(p, variables)
+    if dry_run:
+        return
     tree.write(xml_path, xml_declaration=True, encoding="UTF-8", standalone="yes")
 
     with zipfile.ZipFile(out_path, "w") as zout:
@@ -185,7 +188,7 @@ def compare_vars(csv_vars: list, docx_vars: set, data: list) -> list:
     return final_csv_vars
 
 
-def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: str) -> None:
+def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: str, dry_run: bool, single: int) -> None:
     """
     Dialogue for .docx placeholders substitutions
     :param docx_path: path to .docx file
@@ -201,6 +204,7 @@ def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: s
         print(f"Your csv file {data_path} is empty. Please put some values there.")
 
     text = get_all_text(tree=tree)
+    shutil.rmtree(UNZIP_OUTPUT)
     if not text:
         print(f"Your word doc {docx_path} is empty. Please put some templated text there.")
 
@@ -215,9 +219,10 @@ def dialogue(docx_path: str, out_path: str, data_path: str, file_name_pattern: s
         new_item = {new_csv_var_names[i]: item[old_names[i]] for i in range(len(old_names))}
         renamed_items.append(new_item)
     items = renamed_items
-
-    for n, item in enumerate(items):
-        replace_placeholders(tree=tree,
-                             xml_path=xml_path,
+    if single is not None:
+        items = [items[single]]
+    for item in items:
+        replace_placeholders(docx_path=docx_path,
                              out_path=f"{out_path}/{file_name_pattern}".format(**item).replace(" ", "_"),
-                             variables=item)
+                             variables=item,
+                             dry_run=dry_run)

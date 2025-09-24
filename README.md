@@ -20,7 +20,7 @@ It replaces placeholders in a Word document (e.g., `{name}`, `{phone}`) with val
 1. Clone the repository:
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/volodymyr2126/cli-docx-templator.git
 cd practice2
 ```
 Install dependencies:
@@ -39,12 +39,12 @@ Required packages: lxml
 ```
 
 ## CLI Arguments
-| Argument             | Description                                                                | Default                      |
-| -------------------- | -------------------------------------------------------------------------- | ---------------------------- |
-| `--template`         | Path to the DOCX template with placeholders                                | `settings.DEFAULT_DOC_PATH`  |
-| `--csv`              | Path to CSV file containing data for placeholders                          | `settings.DEFAULT_DATA_PATH` |
-| `--outdir`           | Directory to save generated DOCX files                                     | `settings.OUTPUT_DIR`        |
-| `--filename_pattern` | Pattern for naming output files. Use `{column_name}` placeholders from CSV | `settings.DEFAULT_PATTERN`   |
+| Argument                   | Description                                                                | Default                      |
+|----------------------------| -------------------------------------------------------------------------- | ---------------------------- |
+| `--template`               | Path to the DOCX template with placeholders                                | `settings.DEFAULT_DOC_PATH`  |
+| `--csv`                    | Path to CSV file containing data for placeholders                          | `settings.DEFAULT_DATA_PATH` |
+| `--outdir`                 | Directory to save generated DOCX files                                     | `settings.OUTPUT_DIR`        |
+| `--filename_pattern`       | Pattern for naming output files. Use `{column_name}` placeholders from CSV | `settings.DEFAULT_PATTERN`   |
 
 
 ## Example
